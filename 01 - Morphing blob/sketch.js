@@ -1,83 +1,100 @@
 const name = document.URL.split('/')[document.URL.split('/').length - 2];
 
-var seed = Math.random() * 1341;
+var seed = Math.random() * 09876543234567;
 var t;
 var num, vNum;
-var radius, mySize;
-var sizes = [];
+var radius;
 
-let colors = [];
-let colors0 = "281914-1a1a1a-202020-242e30".split("-").map((a) => "#" + a);
-let colors7 = "fefefe-fffffb-fafdff-fef9fb-f7fcfe".split("-").map((a) => "#" + a);
-let colors8 = "8c75ff-c553d2-2dfd60-2788f5-23054f-f21252-8834f1-c4dd92-184fd3-f9fee2-2E294E-541388-F1E9DA-FFD400-D90368-e9baaa-ffa07a-164555-ffe1d0-acd9e7-4596c7-6d8370-e45240-21d3a4-3303f9-cd2220-173df6-244ca8-a00360-b31016".split("-").map((a) => "#" + a);
-let colors11 = "025159-3E848C-7AB8BF-C4EEF2-A67458".split("-").map((a) => "#" + a);
-let colors12 = "10454F-506266-818274-A3AB78-BDE038".split("-").map((a) => "#" + a);
-let colors13 = "D96690-F28DB2-F2C9E0-89C2D9-88E8F2".split("-").map((a) => "#" + a);
-var color_setup1, color_setup2;
-let color_bg;
-let v_planet = [];
+let pos = [];
+let shapes = [];
+let n = 0;
+
+const params = {
+    noiseStep: .002,
+    shapesNumber: 3,
+    bgColor: '#D3BFB4',
+    shapeGranularity: 10,
+    colorsSet: ['#C93D72', '#D9741B', '#BC9F59', '#3B516D'],
+    changed: false
+}
+
 
 function setup() {
     randomSeed(seed);
     // pixelDensity(5);
     mySize = min(windowWidth, windowHeight);
     // createCanvas(windowWidth, windowHeight);
-    createCanvas(mySize, mySize);
-    color_setup1 = colors7;
-    color_setup2 = random([colors8, colors11, colors8, colors12, colors8, colors13]);
-    color_bg = random(colors7);
-    colors[0] = random(colors7);
-    colors[1] = random(color_setup2);
-    colors[2] = random(color_setup2);
-    colors[3] = random(color_setup2);
-    colors[4] = random(color_setup2);
-    background(color_bg);
-    num = int(random(20, 5));
+    createCanvas(windowWidth, windowHeight);
+
+    background(params.bgColor);
     radius = mySize * 0.00;
-    for (let a = 0; a < TAU; a += TAU / num) {
-        sizes.push(random(0.1, 0.5))
-    }
     t = 0;
+
+    menu = QuickSettings.create(0, 0, "options");
+    menu.addRange("noiseStep", 0.000001, 0.01, params.noiseStep, .0001, (v) => {
+        params.noiseStep = v;
+        params.changed = true;
+    })
+    menu.addRange("shapesNumber", 1, 6, params.shapesNumber, 1, (v) => {
+        params.shapesNumber = v;
+        params.changed = true;
+    })
+    menu.addRange("shapeGranularity", 5, 30, params.shapeGranularity, 1, (v) => {
+        params.shapeGranularity = v;
+        params.changed = true;
+    })
+    menu.addText("bgColor", params.bgColor, (v) => {
+        params.bgColor = v;
+        params.changed = true;
+    })
+    menu.addText("color1", params.colorsSet[0], (v) => {
+        params.colorsSet[0] = v;
+        // drawing();
+    })
+    menu.addText("color2", params.colorsSet[1], (v) => {
+        params.colorsSet[1] = v;
+        // drawing();
+    })
+    menu.addText("color3", params.colorsSet[2], (v) => {
+        params.colorsSet[2] = v;
+        // drawing();
+    })
+    menu.addText("color4", params.colorsSet[3], (v) => {
+        params.colorsSet[3] = v;
+        // drawing();
+    })
+    menu.addText("color5", params.colorsSet[4], (v) => {
+        params.colorsSet[4] = v;
+        // drawing();
+    })
+
+    menu.saveInLocalStorage('morphingBlobSettings');
+
+    strokeWeight(.4);
+
+    for (let i = 0; i < params.shapesNumber; i++) {
+        shapes.push(new Shape({ index: i, color: random(params.colorsSet) }))
+    }
+}
+
+const setPos = (i, posX, posY) => {
+    let angle = (TWO_PI / params.shapeGranularity) * i + t
+    let x = posX + (n * sin(angle) / random(100));
+    let y = posY + (n * cos(angle) / random(100));
+    return createVector(x, y);
 }
 
 function draw() {
-    // background(color_bg);
-
+    n += noise(params.noiseStep);
     randomSeed(seed);
-    for (let i = 0; i < num; i++) {
-        let a = (TAU / num) * i + t
-        let x = radius * sin(a + t) / random(5, 2);
-        let y = radius * cos(a + t) / random(2, 5);
-        v_planet[i] = createVector(x, y);
-    }
     push();
-    // translate(random(width / 8 * 3, width / 8 * 5), random(height / 8 * 3, height / 8 * 5));
     translate(width / 2, height / 2);
-    for (let j = 0; j < 2; j++) {
 
-        drawingContext.shadowColor = "#ffffff33";
-        drawingContext.shadowOffsetX = -1;
-        drawingContext.shadowOffsetY = -1;
-        drawingContext.shadowBlur = 0;
-        drawingContext.shadowColor = "#2f2f2f33";
-        drawingContext.shadowOffsetX = 1;
-        drawingContext.shadowOffsetY = 1;
-        drawingContext.shadowBlur = 0;
-        rotate(random(TAU) * j / 10 + t);
-        noFill();
-        stroke(random(colors));
-        strokeWeight(random(0.2, 0.6));
-
-        beginShape();
-        // curveVertex(v_planet[0].x, v_planet[0].y);
-        for (let i = 0; i < num; i++) {
-            let d = random(radius / 2, radius / 8);
-            let x_plus = 0.2 * random(-d, d) / t;
-            let y_plus = 0.2 * random(-d, d) / t;
-            curveVertex(v_planet[i].x + x_plus, v_planet[i].y - y_plus);
-        }
-        endShape(CLOSE);
+    for (let shape of shapes) {
+        shape.calculatePos();
+        shape.display();
     }
+
     pop();
 
     t += random(0.001, 0.005);
@@ -88,8 +105,48 @@ function draw() {
     }
 }
 
-function keyTyped() {
-    if (key === "s" || key === "S") {
-        saveCanvas("0514_Tulle_1.1_2022", "png");
+class Shape {
+    constructor({ color, index }) {
+        this.color = color;
+        this.posArray = [];
+        this.i = index;
+
+        for (let i = 0; i < params.shapeGranularity; i++) {
+            this.posArray[i] = createVector(0, 0);
+        }
+    }
+
+    calculatePos() {
+        for (let i = 0; i < params.shapeGranularity; i++) {
+            let angle = (TWO_PI / params.shapeGranularity) * i + t
+            let x = this.posArray[i].x + (n * sin(angle) / random(100));
+            let y = this.posArray[i].y + (n * cos(angle) / random(100));
+            this.posArray[i] = createVector(x, y);
+        }
+    }
+
+    display() {
+        drawingContext.shadowColor = "#ffffff33";
+        drawingContext.shadowOffsetX = -1;
+        drawingContext.shadowOffsetY = -1;
+        drawingContext.shadowBlur = 0;
+        drawingContext.shadowColor = "#2f2f2f33";
+        drawingContext.shadowOffsetX = 1;
+        drawingContext.shadowOffsetY = 1;
+        drawingContext.shadowBlur = 0;
+
+        rotate(random(TWO_PI) * this.i / 10 + t);
+
+        noFill();
+        stroke(this.color);
+
+        beginShape();
+        for (let i = 0; i < params.shapeGranularity; i++) {
+            let d = random(radius / 2, radius / 8);
+            let x_plus = 0.2 * random(-d, d) / t;
+            let y_plus = 0.2 * random(-d, d) / t;
+            curveVertex(this.posArray[i].x + x_plus, this.posArray[i].y - y_plus);
+        }
+        endShape(CLOSE);
     }
 }

@@ -1,8 +1,7 @@
 let angle;
 var seed = Math.random() * 9876543;
 var c1, c2;
-// let colors1 = "fef9fb-fafdff-ffffff-fcfbf4-f9f8f6".split("-").map((a) => "#" + a);
-// let colors2 = "8c75ff-c553d2-2dfd60-2788f5-23054f-f21252-8834f1-c4dd92-184fd3-f9fee2-2E294E-541388-F1E9DA-FFD400-D90368-e9baaa-ffa07a-164555-ffe1d0-acd9e7-4596c7-6d8370-e45240-21d3a4-3303f9-cd2220-173df6-244ca8-a00360-b31016".split("-").map((a) => "#" + a);
+
 let colorsSet = ['#DBA55F', '#29353F', '#D94315', '#6C9AB8'];
 
 const params = {
@@ -83,15 +82,15 @@ function setup() {
 
     menu.saveInLocalStorage('mySettings');
 
-    sketchStarted = true;
-    noLoop();
-    placeCircles();
-
     for (let x = 0; x < width; x++) {
         for (let y = 0; y < height; y++) {
             circlePos.push(createVector(x, y))
         }
     }
+
+    sketchStarted = true;
+    noLoop();
+    placeCircles();
 }
 
 function mouseReleased() {
@@ -110,15 +109,20 @@ function placeCircles() {
         let density = int(random(4, map(size, params.minSize, params.maxSize * .6, 5, params.density)));
         let rotation = random(TWO_PI);
 
-        let pos = random(circlePos.filter(_pos => dist(_pos.x, _pos.y)));
-        circlePos = circlePos.filter(_pos => dist(pos.x, pos.y, _pos.x, _pos.y) > size);
+        let pos = random(circlePos);
+        p++;
 
-        circles.push(new Circle({
-            density,
-            size,
-            pos,
-            rotation
-        }));
+        if (circles.every(circle => dist(circle.pos.x, circle.pos.y, pos.x, pos.y) > size + circle.size)) {
+            circlePos = circlePos.filter(_pos => dist(pos.x, pos.y, _pos.x, _pos.y) > size);
+
+            circles.push(new Circle({
+                density,
+                size,
+                pos,
+                rotation
+            }));
+        }
+
 
         /* if (circles.length == 0) {
         } else {
@@ -139,12 +143,12 @@ function placeCircles() {
             } else {
                 p++;
             }
-        }
+        } */
 
         if (p > 10000) {
             console.log('break' + circles.length)
             break;
-        } */
+        }
     }
     console.log('done ' + circles.length)
     drawing();

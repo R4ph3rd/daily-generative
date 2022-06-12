@@ -1,9 +1,6 @@
 let angle;
 var seed = Math.random() * 9876543;
 var c1, c2;
-// let colors1 = "fef9fb-fafdff-ffffff-fcfbf4-f9f8f6".split("-").map((a) => "#" + a);
-// let colors2 = "8c75ff-c553d2-2dfd60-2788f5-23054f-f21252-8834f1-c4dd92-184fd3-f9fee2-2E294E-541388-F1E9DA-FFD400-D90368-e9baaa-ffa07a-164555-ffe1d0-acd9e7-4596c7-6d8370-e45240-21d3a4-3303f9-cd2220-173df6-244ca8-a00360-b31016".split("-").map((a) => "#" + a);
-let colorsSet = ['#DBA55F', '#29353F', '#D94315', '#6C9AB8'];
 
 const params = {
     offsetX: 1,
